@@ -1,0 +1,26 @@
+/**
+ * TCSS 305 - Winter 2016
+ * Assignment 6-A - Tetris
+ */
+package view;
+
+import java.awt.EventQueue;
+
+/**
+ * This class creates a new TetrisGUI object and runs its 
+ * starter method to set up the user interface.
+ * @author Clay Blair
+ * @version 4 March 2016
+ */
+public class TetrisMain {
+    
+    public static void main(final String[] args) {
+        
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new TetrisGUI().start();
+            }
+        });
+    }
+}

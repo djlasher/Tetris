@@ -1,0 +1,89 @@
+/**
+ * TCSS 305 - Winter 2016
+ * Assignment 6-A - Tetris
+ */
+package view;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Random;
+
+import javax.swing.JPanel;
+
+import model.Board;
+import model.Point;
+import model.TetrisPiece;
+/**
+ * This class sets up the preview panel for the next tetris piece, 
+ * and retrieves the piece through observers.
+ * @author Clay Blair
+ * @version 4 March 2016
+ */
+public class NextPiece extends JPanel implements Observer {
+    
+    /** Sets the serial number. **/
+    private static final long serialVersionUID = 1L;
+    /** Sets the block size. **/
+    private static final int BLOCK_SIZE = 40;
+    /** Sets the default height. **/
+    private static final int DEFAULT_HEIGHT = 200;
+    /** Sets the default width. **/
+    private static final int DEFAULT_WIDTH = 300;    
+    /** Creates a new tetrisPiece. **/
+    private TetrisPiece myPiece;
+    /**
+     * Constructor, gives values to some of the fields.
+     * @param theBoard is the Board object to refer to. 
+     **/
+    public NextPiece(final Board theBoard) {
+        setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+        theBoard.addObserver(this);
+
+    }
+    /**
+     * This method implements the Observer interface, and returns a tetris 
+     * piece from a different class. 
+    **/
+    @Override
+    public void update(final Observable theObservable, final Object theObject) {
+        if (theObject instanceof TetrisPiece) {
+            myPiece = (TetrisPiece) theObject;
+            repaint();
+        }
+    }
+    /**
+     * Getter method.
+     * @return returns the current piece being previewed.
+     */
+    public TetrisPiece getPiece() {
+        return myPiece;
+    }
+    /**
+     * This method paints the shape to be used onto the panel, and initializes it as
+     * the current shape.
+     * @param theGraphics is the graphics to be used.
+     */
+    @Override
+    public void paintComponent(final Graphics theGraphics) {
+        super.paintComponent(theGraphics);
+        final Random random = new Random();
+        final float r = random.nextFloat();
+        final float g = random.nextFloat();
+        final float b = random.nextFloat();
+        final Graphics2D g2 = (Graphics2D) theGraphics;
+        if (myPiece != null) {
+            final Point[] newPoints = myPiece.getPoints(); 
+            for (final Point p : newPoints) {
+                g2.setColor(new Color(r, g, b));
+                g2.drawRect((p.x() + 2) * BLOCK_SIZE, p.y() * BLOCK_SIZE, 
+                            BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+                g2.fillRect((p.x() + 2) * BLOCK_SIZE, p.y() * BLOCK_SIZE, 
+                            BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+            }
+        }
+    }
+}

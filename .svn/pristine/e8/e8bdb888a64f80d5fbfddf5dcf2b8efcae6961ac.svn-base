@@ -1,0 +1,299 @@
+/*
+ * TetrisGUI.java
+ * 
+ * TCSS 305 - Spring 2016
+ * Assignment 6 - Tetris
+ */
+package view;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
+
+import model.Board;
+
+/**
+ * This class handles the basic operations for the outer
+ * tetris frame.
+ * @author Clay Blair
+ * @version 3 June 2016
+ */
+public class TetrisGUI extends JFrame implements Observer {
+
+    /**
+     * Generated serial number.
+     */
+    private static final long serialVersionUID = 106474944905625785L;
+    /** Initial size upon opening. **/
+    private static final Dimension INITIAL_SIZE = new Dimension(900, 1000);
+    /** Width of the tetris board. **/
+    private static final int DEFAULT_WIDTH = 10;
+    /** Height of the tetris board. **/
+    private static final int DEFAULT_HEIGHT = 20;
+    /** The tetris board object. **/
+    private Board myBoard;
+    /** Panel for displaying tetris board. **/
+    private GamePanel myGamePanel;
+    /** The total score for this game. **/
+    private int myScore; 
+    
+    private int myWidth;
+    
+    private int myHeight;
+    /** Label for displaying score. **/
+    private JLabel myLabel;
+    /** Label for displaying level. **/
+    private JLabel myLevel;
+    /** Label for displaying lines completed. **/
+    private JLabel myLines;
+    /** Label for displaying next piece. **/
+    private JLabel myNext;
+    /** Label for displaying frame title. **/
+    private JLabel myTitle;
+    /** Used for creating menus. **/
+    private JMenu myMenu;
+    /** Used for the menu bar. **/
+    private JMenuBar myMenuBar;
+    /** Generic menu item. **/
+    private JMenuItem myMenuItem;
+    /** The new game menu item. **/
+    private JMenuItem myNewMenuItem;
+    /** Title panel. **/
+    private JPanel myBlankPanel;
+    /** Panel for holding the other panels. **/
+    private JPanel mySidePanel;
+    /** Panel for spacing other panels. **/
+    private JPanel mySpacePanel;
+    /** Panel for holding statistic labels. **/
+    private JPanel myStatPanel;
+    /** Panel for holding right side panels. **/
+    private JPanel myWordPanel;
+    /** Next piece object. **/
+    private NextPiece myNextPiece;
+    
+    /**
+     * Constructor, creates game panel and board, no arguments. 
+     */
+    public TetrisGUI() {
+        super("Tetris");
+        myWidth = 10;
+        myHeight = 20;
+        myBoard = new Board(myWidth, myHeight);
+        myGamePanel = new GamePanel(myBoard, myWidth, myHeight);
+    }
+    
+    /** 
+     * Creates the main frame by creating all of the individual pieces, starts
+     * the first game. 
+     */
+    public void setupFrame() {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setJMenuBar(menuMaker());
+        myMenuBar.setVisible(true);
+        myBlankPanel = new JPanel();
+        myBlankPanel.setPreferredSize(new Dimension(200, 100));
+        myBlankPanel.setBackground(Color.BLACK);
+        add(myGamePanel, BorderLayout.CENTER);
+        add(statSetup(), BorderLayout.EAST);
+        add(myBlankPanel, BorderLayout.NORTH);
+        myTitle = new JLabel("TETRIS");
+        myTitle.setFont(new Font("Serif", Font.BOLD, 40));
+        myTitle.setForeground(Color.RED);
+        myBlankPanel.add(myTitle);
+        mySidePanel = new JPanel();
+        mySidePanel.setPreferredSize(new Dimension(75, 800));
+        mySidePanel.setBackground(Color.WHITE);
+        add(mySidePanel, BorderLayout.WEST);
+        myGamePanel.setVisible(true);
+        setSize(new Dimension(INITIAL_SIZE));
+        setResizable(false);
+        setVisible(true);
+        myBoard.addObserver(this);
+        myBoard.newGame();
+        myGamePanel.setUnpaused();
+    }
+    
+    /**
+     * Creates the menu bar for the main frame.
+     * @return returns the completed menu bar.
+     */
+    public JMenuBar menuMaker() {
+        myMenuBar = new JMenuBar();
+        myMenu = new JMenu("Options");
+        myNewMenuItem = new JMenuItem("New Game");
+        myNewMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent theEvent) {
+                myBoard.newGame();
+                myGamePanel.setUnpaused();
+                myScore = 0;
+                myNewMenuItem.setEnabled(false);
+            }
+        });
+        
+        myMenu.add(myNewMenuItem);
+        myMenuItem = new JMenuItem("End Game");
+        myMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent theEvent) {
+                myGamePanel.endGame();
+            }
+        });
+        myMenu.add(myMenuItem);
+        myMenuItem = new JMenuItem("Exit");
+        myMenuItem.addActionListener(new ActionListener() {
+            
+            public void actionPerformed(final ActionEvent theEvent) {
+                System.exit(0);
+            }
+        });
+        myMenu.add(myMenuItem);
+        myMenuBar.add(myMenu);
+        myMenu = new JMenu("Help");
+        myMenuItem = new JMenuItem("Key Bindings...");
+        myMenuItem.addActionListener(new ActionListener() {
+            
+            public void actionPerformed(final ActionEvent theEvent) {
+                JOptionPane.showMessageDialog(null, "Key bindings: \n"
+                                              + "Move Left: Left Arrow\n"
+                                + "Move Right: Right Arrow\n"
+                                              + "Move Down: Down Arrow\n"
+                                + "Rotate Clockwise: Page up\n"
+                                              + "Rotate Counterclockwise: Page Down\n"
+                                + "Drop: Space Bar\n"
+                                              + "Pause/Unpause: P", "Key Bindings", 
+                                              JOptionPane.OK_OPTION);
+            }
+        });
+        myMenu.add(myMenuItem);
+        myMenuBar.add(myMenu);
+        myMenu = radioMenu();
+        myMenuBar.add(myMenu);
+        return myMenuBar;
+    }
+    
+    public JMenu radioMenu() {
+        final ButtonGroup buttons = new ButtonGroup();
+        JRadioButtonMenuItem small = new JRadioButtonMenuItem("Small Board");
+        small.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent theEvent) {
+                myBoard = new Board(5,10);
+                myGamePanel = new GamePanel(myBoard, 5,10);
+                myBoard.newGame();
+            }
+        });
+        JRadioButtonMenuItem large = new JRadioButtonMenuItem("Large Board");
+        large.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent theEvent) {
+                myBoard = new Board(10,20);
+                myGamePanel = new GamePanel(myBoard, 10,20);
+                myGamePanel.repaint();
+                myBoard.newGame();
+            }
+        });
+        buttons.add(small);
+        buttons.add(large);
+        myMenu = new JMenu("Board Size");
+        myMenu.add(small);
+        myMenu.add(large);
+        return myMenu;
+    }
+    /**
+     * Creates the side statistics panel.
+     * @return returns the statistics panel.
+     */
+    public JPanel statSetup() {
+        myNextPiece = new NextPiece(myBoard, myGamePanel);
+        myStatPanel = new JPanel(new BorderLayout());
+        myStatPanel.setOpaque(true);
+        myStatPanel.setPreferredSize(new Dimension(300, 1000));
+        myLabel = new JLabel("Score: " + myScore);
+        myNext = new JLabel("Next Piece: ");
+        myLevel = new JLabel("Level: 1");
+        myLevel.setFont(new Font("Serif", Font.BOLD, 32));
+        myLevel.setForeground(Color.YELLOW);
+        myLines = new JLabel("Total lines: 0");
+        myLines.setFont(new Font("Serif", Font.BOLD, 32));
+        myLines.setForeground(Color.YELLOW);
+        myNext.setFont(new Font("Serif", Font.BOLD, 24));
+        myLabel.setFont(new Font("Serif", Font.BOLD, 32));
+        myLabel.setForeground(Color.YELLOW);
+        myWordPanel = new JPanel();
+        myWordPanel.setLayout(new GridLayout(3,1));
+        myWordPanel.add(myLabel);
+        myWordPanel.add(myLines);
+        myWordPanel.add(myLevel);
+        myWordPanel.setPreferredSize(new Dimension(300, 400));
+        myWordPanel.setBackground(Color.BLACK);
+        mySpacePanel = new JPanel();
+        mySpacePanel.setPreferredSize(new Dimension(300, 200));
+        mySpacePanel.setBackground(Color.GRAY);
+        myNextPiece.add(myNext);
+        myStatPanel.add(myNextPiece, BorderLayout.NORTH);
+        myStatPanel.add(mySpacePanel, BorderLayout.CENTER);
+        myStatPanel.add(myWordPanel, BorderLayout.SOUTH);        
+        return myStatPanel;
+    }
+
+//    /**
+//     * Parses through list of integers for score totals.
+//     * @param theLineList is the list of cleared lines.
+//     */
+//    public void lineCounter(ArrayList<Integer> theLineList) {
+////        myScore = 0;
+//        for (int i = 0; i < theLineList.size(); i++) {
+//            myScore += theLineList.get(i) * 10;
+//        }
+//        setScore(myScore);
+//    }
+//    
+    /**
+     * Setter method, sets score value.
+     * @param theScore is the new score value.
+     */
+    public void setScore(int theScore) {
+        myScore = theScore;
+    }
+    
+    /**
+     * Getter method, returns score value.
+     * @return returns score value.
+     */
+    public int getScore() {
+        return myScore;
+    }
+    
+    /**
+     * Observer method, watches for specific object type.
+     * @param theObservable is the object being observed.
+     * @param theObject is the data being passed to observers.
+     */
+    @Override
+    public void update(Observable theObservable, Object theObject) {
+        if (theObject instanceof Integer[]) {
+            int newLines = ((Integer[]) theObject).length;
+            myScore += newLines * 10;
+            setScore(myScore);
+            myLabel.setText("Score: " + myScore);
+            myLevel.setText("Level: " + ((myScore/50) + 1));
+            myLines.setText("Lines: " + myScore/10);
+            myGamePanel.setTimer(1000 - (((myScore/50) + 1) * 100));
+        }
+    }
+}

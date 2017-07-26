@@ -1,0 +1,183 @@
+/*
+ * TCSS 305 - Winter 2016
+ * Assignment 6 - A - Tetris
+ */
+package view;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+
+import javax.swing.AbstractAction;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+
+import model.Block;
+import model.Board;
+
+/**
+ * This program creates the frame and main interface for use 
+ * when playing a game of tetris.
+ * @author Clay Blair
+ * @version 4 March 2016
+ */
+public class TetrisGUI {
+    /** Sets the Initial Size. **/    
+    private static final Dimension INITIAL_SIZE = new Dimension(800, 1000);
+    /** Sets the word panel size. **/        
+    private static final Dimension WORD_SIZE = new Dimension(300, 400);
+    /** Sets the default height, 20 boxes. **/
+    private static final int DEFAULT_HEIGHT = 20;
+    /** Sets the default width, 10 boxes. **/
+    private static final int DEFAULT_WIDTH = 10;
+    /** Initializes a new Board. **/
+    private static Board myBoard;
+    /** Initializes a new BoardPanel. **/
+    private BoardPanel myBoardPanel;
+    /** Initializes an exitlistener. **/
+    private ExitListener myExitListener;
+    /** Initializes the level. **/
+    private int myLevel;  
+    /** Initializes the Score. **/
+    private int myScore;
+    /** Initializes a JFrame object. **/
+    private final JFrame myFrame;
+    /** Initializes a JMenu object. **/
+    private JMenu myMenu;
+    /** Initializes a JMenuBar object. **/
+    private JMenuBar myMenuBar;
+    /** Initializes a JMenuItem object. **/
+    private JMenuItem myMenuItem;
+    /** Sets up a new listener. **/
+    private NewListener myNewListener;
+    /** Initializes a NextPiece object. **/
+    private NextPiece myNext;
+    /** Initializes a WordPanel object. **/
+    private WordPanel myWords; 
+    
+    /**
+     * Constructor, no arguments. Assigns several fields to values.
+     */
+    public TetrisGUI() {
+        myBoardPanel = new BoardPanel(myBoard);
+        myBoard = new Board(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        myWords = new WordPanel();
+        myNext = new NextPiece(myBoard);
+        myFrame = new JFrame("Tetris");
+        myScore = 0;
+        myLevel = 1;
+        new ArrayList<Block[]>();
+    }
+    /**
+     * This method sets up the frame by calling helper
+     * methods and gets the game started.
+     */
+    public void start() {
+        myBoard.newGame();
+        myFrame.setJMenuBar(menuMaker());
+        myFrame.setSize(new Dimension(INITIAL_SIZE));
+        myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        myFrame.setResizable(false);
+        myFrame.setLocationRelativeTo(null);
+        myFrame.setVisible(true);
+        myFrame.setBackground(Color.BLACK);
+        setupEast();
+        setupCenter();
+    }
+    
+    /**
+     * This method sets up the menu bar by adding items and listeners.
+     * @return returns the fully built menu bar.
+     */
+    public JMenuBar menuMaker() {
+        myMenuBar = new JMenuBar();
+        myMenu = new JMenu("File");
+        myMenuBar.add(myMenu);
+        myMenuItem = new JMenuItem();
+        myMenuItem.setText("New Game...");
+        myMenuItem.addActionListener(myNewListener);
+        myMenu.add(myMenuItem);
+        myMenu.addSeparator();
+        myMenuItem = new JMenuItem("Exit");
+        myMenuItem.addActionListener(myExitListener);
+        myMenu.add(myMenuItem);
+        return myMenuBar;
+    }
+    /**
+     * This method sets up the eastern area of the frame with
+     * its associated components.
+     */
+    private void setupEast() {
+        final JPanel eastPanel = new JPanel(new BorderLayout());
+        eastPanel.setBackground(Color.BLACK);
+        
+        myWords.setBackground(Color.YELLOW);
+        myWords.setPreferredSize(WORD_SIZE);
+        
+        final JPanel scorePanel = new JPanel();
+        scorePanel.setBackground(Color.GRAY);
+        scorePanel.setPreferredSize(WORD_SIZE);
+        final JLabel scoreLabel = new JLabel("Score: " + myScore);
+        final JLabel levelLabel = new JLabel("Level: " + myLevel);
+        final Box southBox = new Box(BoxLayout.Y_AXIS);
+        southBox.add(scoreLabel);
+        southBox.add(levelLabel);
+        scorePanel.add(southBox);
+
+        final JLabel newLabel = new JLabel("Next Piece");
+        myNext.add(newLabel);
+        eastPanel.add(myNext, BorderLayout.NORTH);
+        eastPanel.add(myWords, BorderLayout.SOUTH);
+        eastPanel.add(scorePanel, BorderLayout.CENTER);
+        myFrame.add(eastPanel, BorderLayout.EAST);
+    }
+    /** 
+     * tThis method sets up the main area, in the center of the board.
+     */
+    private void setupCenter() {
+        myFrame.add(myBoardPanel, BorderLayout.CENTER);
+    }  
+    /**
+     * This class creates an action listener for the new game menu item.
+     * @author Clay Blair
+     * @version 4 March 2016
+     */
+    public class NewListener extends AbstractAction {
+        /** Sets the serial number. **/
+        private static final long serialVersionUID = 1L;
+
+        /** This method implements the action.
+         *  @param theEvent is the action that causes this listener to fire.
+         */
+        public void actionPerformed(final ActionEvent theEvent) {
+            myBoard.newGame();
+        }
+    }
+    /**
+     * This class creates a listener for the Exit menu item.  
+     * @author Clay Blair
+     * @version 4 March 2016
+     */
+   
+    public class ExitListener extends AbstractAction {
+        /** Creates a serial number. **/
+        private static final long serialVersionUID = 1L;
+        /** 
+         * This method exits the program. 
+         * @param theEvent is the exit item being clicked.
+         */
+        public void actionPerformed(final ActionEvent theEvent) {
+            System.exit(0);
+        }
+    }
+}
+
+

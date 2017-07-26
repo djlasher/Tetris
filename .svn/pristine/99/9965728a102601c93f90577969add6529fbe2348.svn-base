@@ -1,0 +1,76 @@
+package view;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Random;
+
+import javax.swing.JPanel;
+
+import model.Board;
+import model.MovableTetrisPiece;
+import model.Point;
+import model.TetrisPiece;
+
+public class NextPiece extends JPanel implements Observer {
+
+    private Board myBoard;
+    
+    private GamePanel myPanel;
+    
+    private TetrisPiece myCurrent;
+    
+    private TetrisPiece myNext;
+    
+    private static final int BLOCK_SIZE = 40;
+    
+    private static final int DEFAULT_HEIGHT = 400;
+    
+    private static final int DEFAULT_WIDTH = 300;
+    
+    public NextPiece(final Board theBoard, final GamePanel thePanel) {
+//        myNext = TetrisPiece.getRandomPiece();
+        myBoard = theBoard;
+         myPanel = thePanel;   
+         setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+         myBoard.addObserver(this);
+         setBackground(Color.LIGHT_GRAY);
+    }
+    
+    @Override
+    public void update(Observable theObservable, Object theObject) {
+        if (theObject instanceof TetrisPiece) {
+                  myNext = (TetrisPiece) theObject;
+                  repaint();
+        }
+        }
+        
+//    public TetrisPiece getPiece() {
+//        return myCurrent;
+//    }
+    
+    @Override
+    public void paintComponent(final Graphics theGraphics) {
+        super.paintComponent(theGraphics);
+        final Random random = new Random();
+        final float r = random.nextFloat();
+        final float g = random.nextFloat();
+        final float b = random.nextFloat();
+        final Graphics2D g2 = (Graphics2D) theGraphics;
+            final Point[] newPoints = myNext.getPoints(); 
+            for (final Point p : newPoints) {
+                g2.setColor(new Color(r, g, b));
+                g2.fillRect((p.x() + 2) * BLOCK_SIZE + 10, p.y() * BLOCK_SIZE, 
+                            BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+                g2.setColor(Color.BLACK);
+                g2.drawRect((p.x() + 2) * BLOCK_SIZE + 10, p.y() * BLOCK_SIZE, 
+                            BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+//            }
+        }
+    }
+
+    
+}

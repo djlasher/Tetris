@@ -1,0 +1,169 @@
+package view;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import model.Board;
+
+public class TetrisGUI extends JFrame {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 106474944905625785L;
+
+    private static final Dimension INITIAL_SIZE = new Dimension(900, 1000);
+    
+    private static final int BLOCK_SIZE = 40;
+    
+    private static final int DEFAULT_WIDTH = 10;
+    
+    private static final int DEFAULT_HEIGHT = 20;
+    
+    private Board myBoard;
+    
+    private GamePanel myGamePanel;
+    
+    private JLabel myLabel;
+    
+    private JLabel myLevel;
+    
+    private JLabel myLines;
+    
+    private JLabel myNext;
+    
+    private JLabel myTitle;
+    
+//    private JLabel mySpace;
+    
+    private JMenu myMenu;
+    
+    private JMenuBar myMenuBar;
+    
+    private JMenuItem myMenuItem;
+    
+    private JPanel myBlankPanel;
+    
+    private JPanel myNextPanel;
+    
+    private JPanel mySidePanel;
+    
+    private JPanel mySpacePanel;
+    
+    private JPanel myStatPanel;
+    
+    private JPanel myWordPanel;
+    
+    private NextPiece myNextPiece;
+    
+    public TetrisGUI() {
+        super("Tetris");
+        myBoard = new Board(DEFAULT_WIDTH,
+                            DEFAULT_HEIGHT);
+        myGamePanel = new GamePanel(myBoard);
+    }
+    
+    public void setupFrame() {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setJMenuBar(menuMaker());
+        myMenuBar.setVisible(true);
+        myBlankPanel = new JPanel();
+        myBlankPanel.setPreferredSize(new Dimension(200, 100));
+        myBlankPanel.setBackground(Color.BLACK);
+        add(myGamePanel, BorderLayout.CENTER);
+        add(statSetup(), BorderLayout.EAST);
+        add(myBlankPanel, BorderLayout.NORTH);
+        myTitle = new JLabel("TETRIS");
+        myTitle.setFont(new Font("Serif", Font.BOLD, 40));
+        myTitle.setForeground(Color.RED);
+        myBlankPanel.add(myTitle);
+        mySidePanel = new JPanel();
+        mySidePanel.setPreferredSize(new Dimension(75, 800));
+        mySidePanel.setBackground(Color.WHITE);
+        add(mySidePanel, BorderLayout.WEST);
+        myGamePanel.setVisible(true);
+        setSize(new Dimension(INITIAL_SIZE));
+        setResizable(false);
+        setVisible(true);
+        myBoard.newGame();
+    }
+    
+    public JMenuBar menuMaker() {
+        myMenuBar = new JMenuBar();
+        myMenu = new JMenu("Options");
+        myMenuItem = new JMenuItem("Exit");
+        myMenuItem.addActionListener(new ActionListener() {
+            
+            public void actionPerformed(final ActionEvent theEvent) {
+                System.exit(0);
+            }
+        });
+        myMenu.add(myMenuItem);
+        myMenuBar.add(myMenu);
+        myMenu = new JMenu("Help");
+        myMenuItem = new JMenuItem("Key Bindings...");
+        myMenuItem.addActionListener(new ActionListener() {
+            
+            public void actionPerformed(final ActionEvent theEvent) {
+                JOptionPane.showMessageDialog(null, "Key bindings: \n"
+                                              + "Move Left: Left Arrow\n"
+                                + "Move Right: Right Arrow\n"
+                                              + "Move Down: Down Arrow\n"
+                                + "Rotate Clockwise: Page up\n"
+                                              + "Rotate Counterclockwise: Page Down\n"
+                                + "Drop: Space Bar", "Key Bindings", JOptionPane.OK_OPTION);
+            }
+        });
+        myMenu.add(myMenuItem);
+        myMenuBar.add(myMenu);
+        return myMenuBar;
+        }
+    
+    public JPanel statSetup() {
+        myNextPiece = new NextPiece(myBoard, myGamePanel);
+        myStatPanel = new JPanel(new BorderLayout());
+        myStatPanel.setOpaque(true);
+//        myStatPanel.setBackground(Color.GREEN);
+        myStatPanel.setPreferredSize(new Dimension(300, 1000));
+        myLabel = new JLabel("Score: 0");
+        myNext = new JLabel("Next Piece: ");
+        myLevel = new JLabel("Level: 1");
+        myLevel.setFont(new Font("Serif", Font.BOLD, 32));
+        myLevel.setForeground(Color.YELLOW);
+        myLines = new JLabel("Total lines: 0");
+        myLines.setFont(new Font("Serif", Font.BOLD, 32));
+        myLines.setForeground(Color.YELLOW);
+        myNext.setFont(new Font("Serif", Font.BOLD, 24));
+        myLabel.setFont(new Font("Serif", Font.BOLD, 32));
+        myLabel.setForeground(Color.YELLOW);
+        myWordPanel = new JPanel();
+        myWordPanel.setLayout(new GridLayout(3,1));
+        myWordPanel.add(myLabel);
+        myWordPanel.add(myLines);
+        myWordPanel.add(myLevel);
+        myWordPanel.setPreferredSize(new Dimension(300, 400));
+        myWordPanel.setBackground(Color.BLACK);
+        mySpacePanel = new JPanel();
+        mySpacePanel.setPreferredSize(new Dimension(300, 200));
+        mySpacePanel.setBackground(Color.GRAY);
+        myNextPiece.add(myNext);
+        myStatPanel.add(myNextPiece, BorderLayout.NORTH);
+        myStatPanel.add(mySpacePanel, BorderLayout.CENTER);
+        myStatPanel.add(myWordPanel, BorderLayout.SOUTH);        
+        return myStatPanel;
+    }
+}
